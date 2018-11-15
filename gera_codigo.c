@@ -1,8 +1,11 @@
 #include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
 typedef int (*funcp) (int x);
-void gera_codigo (FILE *f, void **&code[i], funcp *entry){
+void gera_codigo (FILE *f, void **code, funcp *entry){
     int line = 1;
     int  c;
+    int  i;
     /***********************************  TO DO  ******************************************************* 
     *1) precisamos confirmar os endereços de memória desses caras aqui de baixo, mas acho que a ideia é essa aqui.
     *2) precisamos corrigir os comandos de comparação
@@ -69,7 +72,7 @@ void gera_codigo (FILE *f, void **&code[i], funcp *entry){
             if (fscanf(f, "et %c%d", &var0, &idx0) != 2) 
             error("comando invalido", line);
             if(var0 == '$') {
-                memcpy(&&code[i], mov_cnst, sizeof(mov_cnst));
+                memcpy(&code[i], mov_cnst, sizeof(mov_cnst));
                 i += sizeof(mov_cnst);
             } else if(var0 == 'v' ) {
                 memcpy(&code[i], mov_Vx, sizeof(mov_Vx));
