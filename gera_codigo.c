@@ -1,6 +1,12 @@
 #include<stdio.h>
 #include<stdlib.h>
 #include<string.h>
+
+static void error (const char *msg, int line) {
+  fprintf(stderr, "erro %s na linha %d\n", msg, line);
+  exit(EXIT_FAILURE);
+}
+
 typedef int (*funcp) (int x);
 void gera_codigo (FILE *f, void **code, funcp *entry){
     int line = 1;
@@ -54,23 +60,26 @@ void gera_codigo (FILE *f, void **code, funcp *entry){
         switch (c) {
         case 'f': { /* function */
             char c0;
-            if (fscanf(f, "unction%c", &c0) != 1)
-            error("comando invalido", line);
+            if (fscanf(f, "unction%c", &c0) != 1){
+                error("comando invalido", line);
+            }
             printf("function\n");
             break;
         }
         case 'e': { /* end */
             char c0;
-            if (fscanf(f, "nd%c", &c0) != 1)
-            error("comando invalido", line);
+            if (fscanf(f, "nd%c", &c0) != 1){
+                error("comando invalido", line);
+            }
             printf("end\n");
             break;
         }
         case 'r': {  /* retorno incondicional */
             int idx0, idx1;
             char var0, var1;
-            if (fscanf(f, "et %c%d", &var0, &idx0) != 2) 
-            error("comando invalido", line);
+            if (fscanf(f, "et %c%d", &var0, &idx0) != 2){
+                error("comando invalido", line);
+            }
             if(var0 == '$') {
                 memcpy(&code[i], mov_cnst, sizeof(mov_cnst));
                 i += sizeof(mov_cnst);
@@ -86,34 +95,38 @@ void gera_codigo (FILE *f, void **code, funcp *entry){
         case 'z': {  /* retorno condicional */
             int idx0, idx1;
             char var0, var1;
-            if (fscanf(f, "ret %c%d %c%d", &var0, &idx0, &var1, &idx1) != 4) 
-            error("comando invalido", line);
+            if (fscanf(f, "ret %c%d %c%d", &var0, &idx0, &var1, &idx1) != 4) {
+                error("comando invalido", line);
+            }
             printf("zret %c%d %c%d\n", var0, idx0, var1, idx1);
             break;
         }
         case 'v': {  /* atribuicao */
             int idx0;
             char var0 = c, c0;
-            if (fscanf(f, "%d = %c",&idx0, &c0) != 2)
-            error("comando invalido",line);
+            if (fscanf(f, "%d = %c",&idx0, &c0) != 2){
+                error("comando invalido", line);
+            }
             if (c0 == 'c') { /* call */
-                int f, idx1;
+                int idx1;
                 char var1;
-                if (fscanf(f, "all %d %c%d\n", &f, &var1, &idx1) != 3)
-                    error("comando invalido",line);
+                if (fscanf(f, "all %d %c%d\n", &f, &var1, &idx1) != 3){
+                    error("comando invalido", line);
+                }
                 memcpy(&code[i], call, sizeof(call));
                 i += sizeof(call);
                 memcpy(&code[i], f, sizeof(f));
                 i += sizeof(f);
-                memcpy(&code[i], idx1, sizeof(idx1));
+                memcpy(&code[i], &idx1, sizeof(idx1));
                 i += sizeof(idx1);
                 printf("%c%d = call %d %c%d\n",var0, idx0, f, var1, idx1);
             }
             else { /* operacão aritmetica */
                 int idx1, idx2;
                 char var1 = c0, var2, op;
-                if (fscanf(f, "%d %c %c%d", &idx1, &op, &var2, &idx2) != 4)
+                if (fscanf(f, "%d %c %c%d", &idx1, &op, &var2, &idx2) != 4){
                     error("comando invalido", line);
+                }
                 if( op == "+" ) {
                     if( c0 == 'v' || var2 == 'v' ) { // v0 = v0 + p0 
                         memcpy(&code[i], add_Vx, sizeof(add_Vx));
