@@ -54,6 +54,7 @@ void gera_codigo (FILE *f, void **code, funcp *entry){
 	/* movq %rax, -idx0(%rbp) */
 	static unsigned char atribut[] = {0x48,0x89,0x45};// atribuicao de valor de retorno para pilha
     code = malloc(NUM_MAX_LINHAS*100);
+    entry = malloc(NUM_MAX_LINHAS*100);
     while ((c = fgetc(f)) != EOF) {
         switch (c) {
         case 'f': { /* function */
@@ -192,6 +193,7 @@ int main (void){
         printf("Erro na geracao\n");
     }
     libera_codigo(code);
+    libera_codigo(funcSBF);
     fclose(fp);
     return 0;
 }
