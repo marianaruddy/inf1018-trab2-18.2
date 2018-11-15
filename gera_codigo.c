@@ -1,6 +1,7 @@
 #include<stdio.h>
 #include<stdlib.h>
 #include<string.h>
+#define NUM_MAX_LINHAS 50
 
 static void error (const char *msg, int line) {
   fprintf(stderr, "erro %s na linha %d\n", msg, line);
@@ -52,10 +53,7 @@ void gera_codigo (FILE *f, void **code, funcp *entry){
     static unsigned char call[] = {0xe8}; // call de função
 	/* movq %rax, -idx0(%rbp) */
 	static unsigned char atribut[] = {0x48,0x89,0x45};// atribuicao de valor de retorno para pilha
-    if ((f = fopen ("programa", "r")) == NULL) {
-        perror ("nao conseguiu abrir arquivo!");
-        exit(1);
-    }
+    code = malloc(NUM_MAX_LINHAS*100);
     while ((c = fgetc(f)) != EOF) {
         switch (c) {
         case 'f': { /* function */
@@ -175,13 +173,25 @@ void gera_codigo (FILE *f, void **code, funcp *entry){
         line ++;
         fscanf(f, " ");
     }
-
-    
 }
 void libera_codigo (void *p){
-
+    free(p);
 }
 int main (void){
-    printf("hello wolrd\n ");
+    printf("hello wolrd\n");
+    FILE *fp;
+    void *code;
+    funcp funcSBF;
+    int res;
+    if ((fp = fopen ("exemple.txt", "r")) == NULL) {
+        perror ("nao conseguiu abrir arquivo!");
+        exit(1);
+    }
+    gera_codigo (fp, &code, &funcSBF);
+    if ((code == NULL) || (funcSBF == NULL)) {
+        printf("Erro na geracao\n");
+    }
+    libera_codigo(code);
+    fclose(fp);
     return 0;
-} 
+}
