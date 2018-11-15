@@ -1,6 +1,6 @@
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
+#include<stdio.h>
+#include<stdlib.h>
+#include<string.h>
 typedef int (*funcp) (int x);
 void gera_codigo (FILE *f, void **code, funcp *entry){
     int line = 1;
@@ -168,3 +168,7 @@ void gera_codigo (FILE *f, void **code, funcp *entry){
 void libera_codigo (void *p){
 
 }
+int main (void){
+    printf("hello wolrd\n ");
+    return 0;
+} 
