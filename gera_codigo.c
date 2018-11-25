@@ -30,6 +30,8 @@ void gera_codigo (FILE *f, void **code, funcp *entry){
 	static unsigned char mov_Vx[] = {0x48,0x8b,0x45}; // atribuicao de valor de variavel
     /* movq (%rdi, %rsi ou %rdx), %rax */
 	static unsigned char mov_Px[] = {0x48,0x89};
+    /* movq %rax, -idx0(%rbp) */
+	static unsigned char mov_ret_to_Vx[] = {0x48,0x89,0x45};// atribuicao de valor de retorno para pilha
 	/* cmp $constante, %rax */
 	static unsigned char cmp_cnst[] = {0x48,0x83, 0xf8}; // comparacao de constante
     /* cmp -idx(%rbp), %rax */
@@ -49,7 +51,7 @@ void gera_codigo (FILE *f, void **code, funcp *entry){
 	/* subq (%rdi, %rsi ou %rdx), %rax */
 	static unsigned char sub_param[] = {0x48,0x29}; // subtração com parametros
 	/* imulq $constante, %rax */
-	static unsigned char imul_cnst[] = {0x48,0x69,0xc0}; // multiplicação com constante
+	static unsigned char imul_cnst[] = {0x48,0x6b,0xc0}; // multiplicação com constante
 	/* imulq -idx(%rbp), %rax */
 	static unsigned char imul_Vx[] = {0x48,0x0f,0xaf,0x45}; // multiplicação com variaveis
 	/* imulq (%rdi, %rsi ou %rdx), %rax */
@@ -58,8 +60,6 @@ void gera_codigo (FILE *f, void **code, funcp *entry){
 	static unsigned char ret[] = {0xc9, 0xc3}; // retorno
     /* call func */
     static unsigned char call[] = {0xe8}; // call de função
-	/* movq %rax, -idx0(%rbp) */
-	static unsigned char mov_ret_to_Vx[] = {0x48,0x89,0x45};// atribuicao de valor de retorno para pilha
 	/* je */
     static unsigned char je[] = {0x74};// verificar se condicional eh verdadeira
     /* jne */
@@ -156,7 +156,7 @@ void gera_codigo (FILE *f, void **code, funcp *entry){
                                 i+=sizeof(add_param);
                                 if(idx2 == 0)
                                     codigo[i++]= 0xf8;
-                                else if(idx1 == 1)
+                                else if(idx2 == 1)
                                     codigo[i++]= 0xf0;
                                 else
                                     codigo[i++]= 0xd0;
@@ -260,7 +260,7 @@ void gera_codigo (FILE *f, void **code, funcp *entry){
                                 i+=sizeof(sub_param);
                                 if(idx2 == 0)
                                     codigo[i++]= 0xf8;
-                                else if(idx1 == 1)
+                                else if(idx2 == 1)
                                     codigo[i++]= 0xf0;
                                 else
                                     codigo[i++]= 0xd0;
@@ -353,7 +353,8 @@ void gera_codigo (FILE *f, void **code, funcp *entry){
                             codigo[i++]= 0xd0;
                     }                    
                 } else if( op == '*' ) {
-                    if( c0 == 'v' || var2 == 'v' ) { // v0 = v0 * x
+                    printf("multiplicação\n");
+                   if( c0 == 'v' || var2 == 'v' ) { // v0 = v0 * x
                         memcpy(&codigo[i], mov_Vx, sizeof(mov_Vx));
                         i += sizeof(mov_Vx);
                         if(c0 == 'v') {
@@ -363,7 +364,7 @@ void gera_codigo (FILE *f, void **code, funcp *entry){
                                 i+=sizeof(imul_param);
                                 if(idx2 == 0)
                                     codigo[i++]= 0xf8;
-                                else if(idx1 == 1)
+                                else if(idx2 == 1)
                                     codigo[i++]= 0xf0;
                                 else
                                     codigo[i++]= 0xd0;
@@ -437,7 +438,6 @@ void gera_codigo (FILE *f, void **code, funcp *entry){
                                 codigo[i++]= 0xf8 -8*idx1;
                             }
                         }
-                    }
                     } else { // v0 = p0 * x
                         memcpy(&codigo[i], mov_Px, sizeof(mov_Px));
                         i+=sizeof(mov_Px);
@@ -456,7 +456,6 @@ void gera_codigo (FILE *f, void **code, funcp *entry){
                         else
                             codigo[i++]= 0xd0;
                     }
-                    }
                 } else {
                     /*operação inexistente*/
                 }
@@ -472,7 +471,6 @@ void gera_codigo (FILE *f, void **code, funcp *entry){
         }
         line ++;
         fscanf(f, " ");
-        
     }
     int aux = 0;
     while( aux < i) {
