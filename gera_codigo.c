@@ -65,10 +65,13 @@ void gera_codigo (FILE *f, void **code, funcp *entry){
     /* jne */
     static unsigned char jne[] = {0x75};// verificar se condicional eh falsa
     static unsigned char pilha[] = {0x90,0x90,0x90,0x90};
+    
+    int num_Vx = 0;
+    
     memcpy(&codigo[i], prologo, sizeof(prologo));
     i+=sizeof(prologo);
-//     memcpy(&codigo[i],pilha,sizeof(pilha));
-//     i+=sizeof(pilha);
+    memcpy(&codigo[i],pilha,sizeof(pilha));
+    i+=sizeof(pilha);
 
     while ((c = fgetc(f)) != EOF) {
         switch (c) {
@@ -122,6 +125,7 @@ void gera_codigo (FILE *f, void **code, funcp *entry){
         case 'v': {  /* atribuicao */
             int idx0;
             char var0 = c, c0;
+            num_Vx++;
             if (fscanf(f, "%d = %c",&idx0, &c0) != 2){
                 error("comando invalido", line);
             }
@@ -477,8 +481,16 @@ void gera_codigo (FILE *f, void **code, funcp *entry){
         printf("%d - %p\n",aux,codigo[aux]);
         aux++;
     }
+    if(num_Vx != 0){ // Preencheremos esse espaço de memória para fornecer memória em caso de variaveis 
+		codigo[4]= 0x48;
+		codigo[5]= 0x83;
+		codigo[6]= 0xec;
+		codigo[7]= 16*(num_Vx) - (num_Vx/2)*16;		
+	}
+	printf("Numero de variaveis locais: %d\n",num_Vx); 
     funcp fu = (funcp)codigo;
-    entry = (funcp)codigo;
+    *entry = (funcp*)codigo;
+    aux=0;
     code = &codigo;
     int res = (*fu)(100);
     printf("resultado = %d \n",res);
@@ -496,7 +508,7 @@ int main (void){
         exit(1);
     }
     gera_codigo (fp, &code, &funcSBF);
-    res = (*funcSBF)();
+    res = (*funcSBF)(100);
     printf("resultado_main = %d \n",res);
     if ((code == NULL) || (funcSBF == NULL)) {
        printf("Erro na geracao\n");
