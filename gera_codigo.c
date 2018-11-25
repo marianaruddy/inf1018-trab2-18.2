@@ -151,24 +151,46 @@ void gera_codigo (FILE *f, void **code, funcp *entry){
                         i += sizeof(mov_Vx);
                         if(c0 == 'v') {
                             codigo[i++]= 0xf8 -8*idx1;
-                            memcpy(&codigo[i], add_param, sizeof(add_param));
-                            i+=sizeof(add_param);
-                            if(idx2 == 0)
-                                codigo[i++]= 0xf8;
-                            else if(idx1 == 1)
-                                codigo[i++]= 0xf0;
-                            else
-                                codigo[i++]= 0xd0;
+                            if(var2 == 'p') {
+                                memcpy(&codigo[i], add_param, sizeof(add_param));
+                                i+=sizeof(add_param);
+                                if(idx2 == 0)
+                                    codigo[i++]= 0xf8;
+                                else if(idx1 == 1)
+                                    codigo[i++]= 0xf0;
+                                else
+                                    codigo[i++]= 0xd0;
+                            } else if(var2 == 'v') {
+                                memcpy(&codigo[i], add_Vx, sizeof(add_Vx));
+                                i+=sizeof(add_Vx);
+                                codigo[i++]= 0xf8 -8*idx2;
+                            } else { // se var2 == $
+                                memcpy(&codigo[i], add_cnst, sizeof(add_cnst));
+                                i+=sizeof(add_cnst);
+                                *((int*) &codigo[i]) = idx2;
+                                i+=sizeof(idx2);
+                            }
                         } else { // var2 == v
                             codigo[i++]= 0xf8 -8*idx2;
-                            memcpy(&codigo[i], add_param, sizeof(add_param));
-                            i+=sizeof(add_param);
-                            if(idx1 == 0)
-                                codigo[i++]= 0xf8;
-                            else if(idx1 == 1)
-                                codigo[i++]= 0xf0;
-                            else
-                                codigo[i++]= 0xd0;
+                            if(c0 == 'p') {
+                                memcpy(&codigo[i], add_param, sizeof(add_param));
+                                i+=sizeof(add_param);
+                                if(idx1 == 0)
+                                    codigo[i++]= 0xf8;
+                                else if(idx1 == 1)
+                                    codigo[i++]= 0xf0;
+                                else
+                                    codigo[i++]= 0xd0;
+                            } else if(c0 == 'v') {
+                                memcpy(&codigo[i], add_Vx, sizeof(add_Vx));
+                                i+=sizeof(add_Vx);
+                                codigo[i++]= 0xf8 -8*idx1;
+                            } else { // se c0 == $
+                                memcpy(&codigo[i], add_cnst, sizeof(add_cnst));
+                                i+=sizeof(add_cnst);
+                                *((int*) &codigo[i]) = idx1;
+                                i+=sizeof(idx1);
+                            }
                         }            
                         
                     } else if( c0 == '$' || var2 == '$' ) { // v0 = p0 + $10
@@ -177,53 +199,263 @@ void gera_codigo (FILE *f, void **code, funcp *entry){
                         if(c0 == '$') {
                             *((int*) &codigo[i]) = idx1;
                             i+=sizeof(idx1);
-                            memcpy(&codigo[i], add_param, sizeof(add_param));
-                            i+=sizeof(add_param);
-                            if(idx2 == 0)
-                                codigo[i++]= 0xf8;
-                            else if(idx2 == 1)
-                                codigo[i++]= 0xf0;
-                            else
-                                codigo[i++]= 0xd0;
+                            if(var2 == 'p') {
+                                memcpy(&codigo[i], add_param, sizeof(add_param));
+                                i+=sizeof(add_param);
+                                if(idx2 == 0)
+                                    codigo[i++]= 0xf8;
+                                else if(idx2 == 1)
+                                    codigo[i++]= 0xf0;
+                                else
+                                    codigo[i++]= 0xd0;
+                            } else { //var2 == v
+                                memcpy(&codigo[i], add_Vx, sizeof(add_Vx));
+                                i+=sizeof(add_Vx);
+                                codigo[i++]= 0xf8 -8*idx2;
+                            }
                         } else { // var2 == $
                             *((int*) &codigo[i]) = idx2;
                             i+=sizeof(idx2);
-                            memcpy(&codigo[i], add_param, sizeof(add_param));
-                            i+=sizeof(add_param);
-                            if(idx1 == 0)
-                                codigo[i++]= 0xf8;
-                            else if(idx1 == 1)
-                                codigo[i++]= 0xf0;
-                            else
-                                codigo[i++]= 0xd0;
+                            if(c0 == 'p') {
+                                memcpy(&codigo[i], add_param, sizeof(add_param));
+                                i+=sizeof(add_param);
+                                if(idx1 == 0)
+                                    codigo[i++]= 0xf8;
+                                else if(idx1 == 1)
+                                    codigo[i++]= 0xf0;
+                                else
+                                    codigo[i++]= 0xd0;
+                            } else { //c0 == v
+                                memcpy(&codigo[i], add_Vx, sizeof(add_Vx));
+                                i+=sizeof(add_Vx);
+                                codigo[i++]= 0xf8 -8*idx1;
+                            }
                         }                        
                     } else { // v0 = p0 + x
-                        memcpy(&codigo[i], add_param, sizeof(add_param));  
-                        i += sizeof(add_param);
+                        memcpy(&codigo[i], mov_Px, sizeof(mov_Px));
+                        i+=sizeof(mov_Px);
+                        if(idx1 == 0)
+                            codigo[i++]= 0xf8;
+                        else if(idx1 == 1)
+                            codigo[i++]= 0xf0;
+                        else
+                            codigo[i++]= 0xd0;
+                        memcpy(&codigo[i], add_param, sizeof(add_param));
+                        i+=sizeof(add_param);
+                        if(idx2 == 0)
+                            codigo[i++]= 0xf8;
+                        else if(idx1 == 1)
+                            codigo[i++]= 0xf0;
+                        else
+                            codigo[i++]= 0xd0;
                     }
-                    
                 } else if( op == '-' ) {
-                    if( c0 == 'v' || var2 == 'v' ) { // v0 = v0 + p0 
-                        memcpy(&codigo[i], sub_Vx, sizeof(sub_Vx));
-                        i += sizeof(sub_Vx);
-                    } else if( c0 == '$' || var2 == '$' ) { // v0 = $10 + p0 
-                        memcpy(&codigo[i], sub_cnst, sizeof(sub_cnst));
-                        i += sizeof(sub_cnst);
-                    } else { // v0 = p0 + x
-                        memcpy(&codigo[i], sub_param, sizeof(sub_param));  
-                        i += sizeof(sub_param);
-                    }
-                    
+                    if( c0 == 'v' || var2 == 'v' ) { // v0 = v0 - p0 
+                        memcpy(&codigo[i], mov_Vx, sizeof(mov_Vx));
+                        i += sizeof(mov_Vx);
+                        if(c0 == 'v') {
+                            codigo[i++]= 0xf8 -8*idx1;
+                            if(var2 == 'p') {
+                                memcpy(&codigo[i], sub_param, sizeof(sub_param));
+                                i+=sizeof(sub_param);
+                                if(idx2 == 0)
+                                    codigo[i++]= 0xf8;
+                                else if(idx1 == 1)
+                                    codigo[i++]= 0xf0;
+                                else
+                                    codigo[i++]= 0xd0;
+                            } else if(var2 == 'v') {
+                                memcpy(&codigo[i], sub_Vx, sizeof(sub_Vx));
+                                i+=sizeof(sub_Vx);
+                                codigo[i++]= 0xf8 -8*idx2;
+                            } else { // se var2 == $
+                                memcpy(&codigo[i], sub_cnst, sizeof(sub_cnst));
+                                i+=sizeof(sub_cnst);
+                                *((int*) &codigo[i]) = idx2;
+                                i+=sizeof(idx2);
+                            }
+                        } else { // var2 == v
+                            codigo[i++]= 0xf8 -8*idx2;
+                            if(c0 == 'p') {
+                                memcpy(&codigo[i], sub_param, sizeof(sub_param));
+                                i+=sizeof(sub_param);
+                                if(idx1 == 0)
+                                    codigo[i++]= 0xf8;
+                                else if(idx1 == 1)
+                                    codigo[i++]= 0xf0;
+                                else
+                                    codigo[i++]= 0xd0;
+                            } else if(c0 == 'v') {
+                                memcpy(&codigo[i], sub_Vx, sizeof(sub_Vx));
+                                i+=sizeof(sub_Vx);
+                                codigo[i++]= 0xf8 -8*idx1;
+                            } else { // se c0 == $
+                                memcpy(&codigo[i], sub_cnst, sizeof(sub_cnst));
+                                i+=sizeof(sub_cnst);
+                                *((int*) &codigo[i]) = idx1;
+                                i+=sizeof(idx1);
+                            }
+                        } 
+                    } else if( c0 == '$' || var2 == '$' ) { // v0 = $10 - p0 
+                        memcpy(&codigo[i], mov_cnst, sizeof(mov_cnst));
+                        i+=sizeof(mov_cnst);
+                        if(c0 == '$') {
+                            *((int*) &codigo[i]) = idx1;
+                            i+=sizeof(idx1);
+                            if(var2 == 'p') {
+                                memcpy(&codigo[i], sub_param, sizeof(sub_param));
+                                i+=sizeof(sub_param);
+                                if(idx2 == 0)
+                                    codigo[i++]= 0xf8;
+                                else if(idx2 == 1)
+                                    codigo[i++]= 0xf0;
+                                else
+                                    codigo[i++]= 0xd0;
+                            } else { //var2 == v
+                                memcpy(&codigo[i], sub_Vx, sizeof(sub_Vx));
+                                i+=sizeof(sub_Vx);
+                                codigo[i++]= 0xf8 -8*idx2;
+                            }
+                        } else { // var2 == $
+                            *((int*) &codigo[i]) = idx2;
+                            i+=sizeof(idx2);
+                            if(c0 == 'p') {
+                                memcpy(&codigo[i], sub_param, sizeof(sub_param));
+                                i+=sizeof(sub_param);
+                                if(idx1 == 0)
+                                    codigo[i++]= 0xf8;
+                                else if(idx1 == 1)
+                                    codigo[i++]= 0xf0;
+                                else
+                                    codigo[i++]= 0xd0;
+                            } else { //c0 == v
+                                memcpy(&codigo[i], sub_Vx, sizeof(sub_Vx));
+                                i+=sizeof(sub_Vx);
+                                codigo[i++]= 0xf8 -8*idx1;
+                            }
+                        }
+                    } else { // v0 = p0 - x
+                        memcpy(&codigo[i], mov_Px, sizeof(mov_Px));
+                        i+=sizeof(mov_Px);
+                        if(idx1 == 0)
+                            codigo[i++]= 0xf8;
+                        else if(idx1 == 1)
+                            codigo[i++]= 0xf0;
+                        else
+                            codigo[i++]= 0xd0;
+                        memcpy(&codigo[i], sub_param, sizeof(sub_param));
+                        i+=sizeof(sub_param);
+                        if(idx2 == 0)
+                            codigo[i++]= 0xf8;
+                        else if(idx1 == 1)
+                            codigo[i++]= 0xf0;
+                        else
+                            codigo[i++]= 0xd0;
+                    }                    
                 } else if( op == '*' ) {
-                    if( c0 == 'v' || var2 == 'v' ) { // v0 = v0 + x
-                        memcpy(&codigo[i], imul_Vx, sizeof(imul_Vx));
-                        i += sizeof(imul_Vx);
-                    } else if( c0 == '$' || var2 == '$' ) { // v0 = $10 + x 
-                        memcpy(&codigo[i], imul_cnst, sizeof(imul_cnst));
-                        i += sizeof(imul_cnst);
-                    } else { // v0 = p0 + x
-                        memcpy(&codigo[i], imul_param, sizeof(imul_param));  
-                        i += sizeof(imul_param);
+                    if( c0 == 'v' || var2 == 'v' ) { // v0 = v0 * x
+                        memcpy(&codigo[i], mov_Vx, sizeof(mov_Vx));
+                        i += sizeof(mov_Vx);
+                        if(c0 == 'v') {
+                            codigo[i++]= 0xf8 -8*idx1;
+                            if(var2 == 'p') {
+                                memcpy(&codigo[i], imul_param, sizeof(imul_param));
+                                i+=sizeof(imul_param);
+                                if(idx2 == 0)
+                                    codigo[i++]= 0xf8;
+                                else if(idx1 == 1)
+                                    codigo[i++]= 0xf0;
+                                else
+                                    codigo[i++]= 0xd0;
+                            } else if(var2 == 'v') {
+                                memcpy(&codigo[i], imul_Vx, sizeof(imul_Vx));
+                                i+=sizeof(imul_Vx);
+                                codigo[i++]= 0xf8 -8*idx2;
+                            } else { // se var2 == $
+                                memcpy(&codigo[i], imul_cnst, sizeof(imul_cnst));
+                                i+=sizeof(imul_cnst);
+                                *((int*) &codigo[i]) = idx2;
+                                i+=sizeof(idx2);
+                            }
+                        } else { // var2 == v
+                            codigo[i++]= 0xf8 -8*idx2;
+                            if(c0 == 'p') {
+                                memcpy(&codigo[i], imul_param, sizeof(imul_param));
+                                i+=sizeof(imul_param);
+                                if(idx1 == 0)
+                                    codigo[i++]= 0xf8;
+                                else if(idx1 == 1)
+                                    codigo[i++]= 0xf0;
+                                else
+                                    codigo[i++]= 0xd0;
+                            } else if(c0 == 'v') {
+                                memcpy(&codigo[i], imul_Vx, sizeof(imul_Vx));
+                                i+=sizeof(imul_Vx);
+                                codigo[i++]= 0xf8 -8*idx1;
+                            } else { // se c0 == $
+                                memcpy(&codigo[i], imul_cnst, sizeof(imul_cnst));
+                                i+=sizeof(imul_cnst);
+                                *((int*) &codigo[i]) = idx1;
+                                i+=sizeof(idx1);
+                            }
+                        } 
+                    } else if( c0 == '$' || var2 == '$' ) { // v0 = $10 * x 
+                        memcpy(&codigo[i], mov_cnst, sizeof(mov_cnst));
+                        i+=sizeof(mov_cnst);
+                        if(c0 == '$') {
+                            *((int*) &codigo[i]) = idx1;
+                            i+=sizeof(idx1);
+                            if(var2 == 'p') {
+                                memcpy(&codigo[i], imul_param, sizeof(imul_param));
+                                i+=sizeof(imul_param);
+                                if(idx2 == 0)
+                                    codigo[i++]= 0xf8;
+                                else if(idx2 == 1)
+                                    codigo[i++]= 0xf0;
+                                else
+                                    codigo[i++]= 0xd0;
+                            } else { //var2 == v
+                                memcpy(&codigo[i], imul_Vx, sizeof(imul_Vx));
+                                i+=sizeof(imul_Vx);
+                                codigo[i++]= 0xf8 -8*idx2;
+                            }
+                        } else { // var2 == $
+                            *((int*) &codigo[i]) = idx2;
+                            i+=sizeof(idx2);
+                            if(c0 == 'p') {
+                                memcpy(&codigo[i], imul_param, sizeof(imul_param));
+                                i+=sizeof(imul_param);
+                                if(idx1 == 0)
+                                    codigo[i++]= 0xf8;
+                                else if(idx1 == 1)
+                                    codigo[i++]= 0xf0;
+                                else
+                                    codigo[i++]= 0xd0;
+                            } else { //c0 == v
+                                memcpy(&codigo[i], imul_Vx, sizeof(imul_Vx));
+                                i+=sizeof(imul_Vx);
+                                codigo[i++]= 0xf8 -8*idx1;
+                            }
+                        }
+                    }
+                    } else { // v0 = p0 * x
+                        memcpy(&codigo[i], mov_Px, sizeof(mov_Px));
+                        i+=sizeof(mov_Px);
+                        if(idx1 == 0)
+                            codigo[i++]= 0xf8;
+                        else if(idx1 == 1)
+                            codigo[i++]= 0xf0;
+                        else
+                            codigo[i++]= 0xd0;
+                        memcpy(&codigo[i], imul_param, sizeof(imul_param));
+                        i+=sizeof(imul_param);
+                        if(idx2 == 0)
+                            codigo[i++]= 0xf8;
+                        else if(idx1 == 1)
+                            codigo[i++]= 0xf0;
+                        else
+                            codigo[i++]= 0xd0;
+                    }
                     }
                 } else {
                     /*operação inexistente*/
