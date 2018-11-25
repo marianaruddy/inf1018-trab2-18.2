@@ -149,37 +149,20 @@ void gera_codigo (FILE *f, void **code, funcp *entry){
                     if( c0 == 'v' || var2 == 'v' ) { // v0 = v0 + p0
                         memcpy(&codigo[i], mov_Vx, sizeof(mov_Vx));
                         i += sizeof(mov_Vx);
-                        codigo[i++]= 0xf8 -8*var0;
                         if(c0 == 'v') {
-                            *((int*) &codigo[i]) = idx1;
-                            i+=sizeof(idx1);
+                            codigo[i++]= 0xf8 -8*idx1;
                             memcpy(&codigo[i], add_param, sizeof(add_param));
                             i+=sizeof(add_param);
                             if(idx2 == 0)
                                 codigo[i++]= 0xf8;
                             else if(idx1 == 1)
-                                codigo[i++]= 0xf0;
-                            else
-                                codigo[i++]= 0xd0;
-                            memcpy(&codigo[i], mov_Px, sizeof(mov_Px));
-                            if(idx2 == 0)
-                                codigo[i++]= 0xf8;
-                            else if(idx2 == 1)
                                 codigo[i++]= 0xf0;
                             else
                                 codigo[i++]= 0xd0;
                         } else { // var2 == v
-                            *((int*) &codigo[i]) = idx2;
-                            i+=sizeof(idx2);
+                            codigo[i++]= 0xf8 -8*idx2;
                             memcpy(&codigo[i], add_param, sizeof(add_param));
                             i+=sizeof(add_param);
-                            if(idx1 == 0)
-                                codigo[i++]= 0xf8;
-                            else if(idx1 == 1)
-                                codigo[i++]= 0xf0;
-                            else
-                                codigo[i++]= 0xd0;
-                            memcpy(&codigo[i], mov_Px, sizeof(mov_Px));
                             if(idx1 == 0)
                                 codigo[i++]= 0xf8;
                             else if(idx1 == 1)
