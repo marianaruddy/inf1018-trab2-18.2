@@ -15,7 +15,7 @@ void gera_codigo (FILE *f, void **code, funcp *entry){
     int  c;
     int  i = 0;
     // criei um um unsigned char para conseguir colocar os bytes certinhos.
-    unsigned char* codigo = (unsigned char*)code;
+    unsigned char *codigo = (unsigned char *) malloc(sizeof(char)*NUM_MAX_LINHAS);
     /***********************************  TO DO  ******************************************************* 
     *1) precisamos confirmar os endereços de memória desses caras aqui de baixo, mas acho que a ideia é essa aqui.
     *2) precisamos corrigir os comandos de comparação
@@ -28,6 +28,8 @@ void gera_codigo (FILE *f, void **code, funcp *entry){
 	static unsigned char mov_cnst[] = {0x48,0xc7,0xc0}; // atribuicao de valor de constante
 	/* movq -idx(%rbp), %rax */
 	static unsigned char mov_Vx[] = {0x48,0x8b,0x45}; // atribuicao de valor de variavel
+    /* movq (%rdi, %rsi ou %rdx), %rax */
+	static unsigned char mov_Px[] = {0x48,0x89};
 	/* cmp $constante, %rax */
 	static unsigned char cmp_cnst[] = {0x48,0x83, 0xf8}; // comparacao de constante
     /* cmp -idx(%rbp), %rax */
@@ -57,161 +59,216 @@ void gera_codigo (FILE *f, void **code, funcp *entry){
     /* call func */
     static unsigned char call[] = {0xe8}; // call de função
 	/* movq %rax, -idx0(%rbp) */
-	static unsigned char atribut[] = {0x48,0x89,0x45};// atribuicao de valor de retorno para pilha
+	static unsigned char mov_ret_to_Vx[] = {0x48,0x89,0x45};// atribuicao de valor de retorno para pilha
 	/* je */
     static unsigned char je[] = {0x74};// verificar se condicional eh verdadeira
     /* jne */
     static unsigned char jne[] = {0x75};// verificar se condicional eh falsa
-    //memcpy(&codigo[i], prologo, sizeof(prologo));
-    //i+=sizeof(prologo);
-    
-    /* Aqui eu to fazendo com que o ponteiro codigo tenha o codigo de maquina dos comandos para executar essa funcao:
-     *
-     * function
-     * ret $10
-     * end 
-     *************************/
-    
-    memcpy(&codigo[i], mov_cnst, sizeof(mov_cnst));
-    i+=sizeof(mov_cnst);
-    int idx = 4;
-    *((int*) &codigo[i]) = idx;		//insere valor em little endian
-    i += sizeof(int);
-    memcpy(&codigo[i], ret, sizeof(ret));
-    i+=sizeof(ret);
-    //code = malloc(NUM_MAX_LINHAS*100);
-    //entry = malloc(NUM_MAX_LINHAS*100);
-    
-    
-    
-    /* Comentei essa parte do código para ver se consigo "marretar" o código de máquina para executar o comando que eu quero */
-    
-//     while ((c = fgetc(f)) != EOF) {
-//         switch (c) {
-//         case 'f': { /* function */
-//             char c0;
-//             if (fscanf(f, "unction%c", &c0) != 1){
-//                 error("comando invalido", line);
-//             }
-//             printf("function\n");
-//             break;
-//         }
-//         case 'e': { /* end */
-//             char c0;
-//             if (fscanf(f, "nd%c", &c0) != 1){
-//                 error("comando invalido", line);
-//             }
-//             printf("end\n");
-//             break;
-//         }
-//         case 'r': {  /* retorno incondicional */
-//             int idx0, idx1;
-//             char var0, var1;
-//             
-//             if (fscanf(f, "et %c%d", &var0, &idx0) != 2){
-//                 error("comando invalido", line);
-//             }
-//             if(var0 == '$') {
-//                 memcpy(&code[i], mov_cnst, sizeof(mov_cnst));
-//                 i += sizeof(mov_cnst);
-//                 memcpy(&code[i], &idx0, sizeof(idx0));
-//                 i += sizeof(idx0);
-//             } else if(var0 == 'v' ) {
-//                 memcpy(&code[i], mov_Vx, sizeof(mov_Vx));
-//                 i += sizeof(mov_Vx);
-//             }
-//             memcpy(&code[i],ret,sizeof(ret));
-//             i += sizeof(ret);
-//             printf("ret %c%d\n", var0, idx0);
-//             break;
-//         }
-//         case 'z': {  /* retorno condicional */
-//             int idx0, idx1;
-//             char var0, var1;
-//             if (fscanf(f, "ret %c%d %c%d", &var0, &idx0, &var1, &idx1) != 4) {
-//                 error("comando invalido", line);
-//             }
-//             printf("zret %c%d %c%d\n", var0, idx0, var1, idx1);
-//             break;
-//         }
-//         case 'v': {  /* atribuicao */
-//             int idx0;
-//             char var0 = c, c0;
-//             if (fscanf(f, "%d = %c",&idx0, &c0) != 2){
-//                 error("comando invalido", line);
-//             }
-//             if (c0 == 'c') { /* call */
-//                 int idx1, idx2;
-//                 char var1;
-//                 if (fscanf(f, "all %d %c%d\n", &idx1, &var1, &idx2) != 3){
-//                     error("comando invalido", line);
-//                 }
-//                 memcpy(&code[i], call, sizeof(call));
-//                 i += sizeof(call);
-//                 memcpy(&code[i], &idx1, sizeof(idx1));
-//                 i += sizeof(idx1);
-//                 memcpy(&code[i], &idx2, sizeof(idx2));
-//                 i += sizeof(idx2);
-//                 printf("%c%d = call %d %c%d\n",var0, idx0, idx1, var1, idx2);
-//             }
-//             else { /* operacão aritmetica */
-//                 int idx1, idx2;
-//                 char var1 = c0, var2, op;
-//                 if (fscanf(f, "%d %c %c%d", &idx1, &op, &var2, &idx2) != 4){
-//                     error("comando invalido", line);
-//                 }
-//                 if( op == '+' ) {
-//                     if( c0 == 'v' || var2 == 'v' ) { // v0 = v0 + p0 
-//                         memcpy(&code[i], add_Vx, sizeof(add_Vx));
-//                         i += sizeof(add_Vx);
-//                     } else if( c0 == '$' || var2 == '$' ) { // v0 = $10 + p0 
-//                         memcpy(&code[i], add_cnst, sizeof(add_cnst));
-//                         i += sizeof(add_cnst);
-//                     } else { // v0 = p0 + x
-//                         memcpy(&code[i], add_param, sizeof(add_param));  
-//                         i += sizeof(add_param);
-//                     }
-//                     
-//                 } else if( op == '-' ) {
-//                     if( c0 == 'v' || var2 == 'v' ) { // v0 = v0 + p0 
-//                         memcpy(&code[i], sub_Vx, sizeof(sub_Vx));
-//                         i += sizeof(sub_Vx);
-//                     } else if( c0 == '$' || var2 == '$' ) { // v0 = $10 + p0 
-//                         memcpy(&code[i], sub_cnst, sizeof(sub_cnst));
-//                         i += sizeof(sub_cnst);
-//                     } else { // v0 = p0 + x
-//                         memcpy(&code[i], sub_param, sizeof(sub_param));  
-//                         i += sizeof(sub_param);
-//                     }
-//                     
-//                 } else if( op == '*' ) {
-//                     if( c0 == 'v' || var2 == 'v' ) { // v0 = v0 + x
-//                         memcpy(&code[i], imul_Vx, sizeof(imul_Vx));
-//                         i += sizeof(imul_Vx);
-//                     } else if( c0 == '$' || var2 == '$' ) { // v0 = $10 + x 
-//                         memcpy(&code[i], imul_cnst, sizeof(imul_cnst));
-//                         i += sizeof(imul_cnst);
-//                     } else { // v0 = p0 + x
-//                         memcpy(&code[i], imul_param, sizeof(imul_param));  
-//                         i += sizeof(imul_param);
-//                     }
-//                 } else {
-//                     /*operação inexistente*/
-//                 }
-//                 printf("%c%d = %c%d %c %c%d\n",
-//                         var0, idx0, var1, idx1, op, var2, idx2);
-//             }
-//             break;
-//         }
-//         default: error("comando desconhecido", line);
-//         }
-//         line ++;
-//         fscanf(f, " ");
-//         
-//     }
-    // nessa parte eu to printando code, e vendo que ta tudo certinho msm
-    printf("%p \n",code[0]);
-    entry = (funcp*)code;
+    static unsigned char pilha[] = {0x90,0x90,0x90,0x90};
+    memcpy(&codigo[i], prologo, sizeof(prologo));
+    i+=sizeof(prologo);
+//     memcpy(&codigo[i],pilha,sizeof(pilha));
+//     i+=sizeof(pilha);
+
+    while ((c = fgetc(f)) != EOF) {
+        switch (c) {
+        case 'f': { /* function */
+            char c0;
+            if (fscanf(f, "unction%c", &c0) != 1){
+                error("comando invalido", line);
+            }
+            printf("function\n");
+            break;
+        }
+        case 'e': { /* end */
+            char c0;
+            if (fscanf(f, "nd%c", &c0) != 1){
+                error("comando invalido", line);
+            }
+            printf("end\n");
+            break;
+        }
+        case 'r': {  /* retorno incondicional */
+            int idx0, idx1;
+            char var0, var1;
+            
+            if (fscanf(f, "et %c%d", &var0, &idx0) != 2){
+                error("comando invalido", line);
+            }
+            if(var0 == '$') {
+                memcpy(&codigo[i], mov_cnst, sizeof(mov_cnst));
+                i += sizeof(mov_cnst);
+                *((int*) &codigo[i]) = idx0;
+                i+=sizeof(idx0);
+            } else if(var0 == 'v' ) {
+                memcpy(&codigo[i], mov_Vx, sizeof(mov_Vx));
+                i += sizeof(mov_Vx);
+         	 	codigo[i++]= 0xf8 -8*idx0;
+            }
+            memcpy(&codigo[i],ret,sizeof(ret));
+            i += sizeof(ret);
+            printf("ret %c%d\n", var0, idx0);
+            break;
+        }
+        case 'z': {  /* retorno condicional */
+            int idx0, idx1;
+            char var0, var1;
+            if (fscanf(f, "ret %c%d %c%d", &var0, &idx0, &var1, &idx1) != 4) {
+                error("comando invalido", line);
+            }
+            printf("zret %c%d %c%d\n", var0, idx0, var1, idx1);
+            break;
+        }
+        case 'v': {  /* atribuicao */
+            int idx0;
+            char var0 = c, c0;
+            if (fscanf(f, "%d = %c",&idx0, &c0) != 2){
+                error("comando invalido", line);
+            }
+            if (c0 == 'c') { /* call */
+                int idx1, idx2;
+                char var1;
+                if (fscanf(f, "all %d %c%d\n", &idx1, &var1, &idx2) != 3){
+                    error("comando invalido", line);
+                }
+                memcpy(&codigo[i], call, sizeof(call));
+                i += sizeof(call);
+                memcpy(&codigo[i], &idx1, sizeof(idx1));
+                i += sizeof(idx1);
+                memcpy(&codigo[i], &idx2, sizeof(idx2));
+                i += sizeof(idx2);
+                printf("%c%d = call %d %c%d\n",var0, idx0, idx1, var1, idx2);
+            }
+            else { /* operacão aritmetica */
+                int idx1, idx2;
+                char var1 = c0, var2, op;
+                if (fscanf(f, "%d %c %c%d", &idx1, &op, &var2, &idx2) != 4){
+                    error("comando invalido", line);
+                }
+                if( op == '+' ) {
+                    if( c0 == 'v' || var2 == 'v' ) { // v0 = v0 + p0
+                        memcpy(&codigo[i], mov_Vx, sizeof(mov_Vx));
+                        i += sizeof(mov_Vx);
+                        codigo[i++]= 0xf8 -8*var0;
+                        if(c0 == 'v') {
+                            *((int*) &codigo[i]) = idx1;
+                            i+=sizeof(idx1);
+                            memcpy(&codigo[i], add_param, sizeof(add_param));
+                            i+=sizeof(add_param);
+                            if(idx2 == 0)
+                                codigo[i++]= 0xf8;
+                            else if(idx1 == 1)
+                                codigo[i++]= 0xf0;
+                            else
+                                codigo[i++]= 0xd0;
+                            memcpy(&codigo[i], mov_Px, sizeof(mov_Px));
+                            if(idx2 == 0)
+                                codigo[i++]= 0xf8;
+                            else if(idx2 == 1)
+                                codigo[i++]= 0xf0;
+                            else
+                                codigo[i++]= 0xd0;
+                        } else { // var2 == v
+                            *((int*) &codigo[i]) = idx2;
+                            i+=sizeof(idx2);
+                            memcpy(&codigo[i], add_param, sizeof(add_param));
+                            i+=sizeof(add_param);
+                            if(idx1 == 0)
+                                codigo[i++]= 0xf8;
+                            else if(idx1 == 1)
+                                codigo[i++]= 0xf0;
+                            else
+                                codigo[i++]= 0xd0;
+                            memcpy(&codigo[i], mov_Px, sizeof(mov_Px));
+                            if(idx1 == 0)
+                                codigo[i++]= 0xf8;
+                            else if(idx1 == 1)
+                                codigo[i++]= 0xf0;
+                            else
+                                codigo[i++]= 0xd0;
+                        }            
+                        
+                    } else if( c0 == '$' || var2 == '$' ) { // v0 = p0 + $10
+                        memcpy(&codigo[i], mov_cnst, sizeof(mov_cnst));
+                        i+=sizeof(mov_cnst);
+                        if(c0 == '$') {
+                            *((int*) &codigo[i]) = idx1;
+                            i+=sizeof(idx1);
+                            memcpy(&codigo[i], add_param, sizeof(add_param));
+                            i+=sizeof(add_param);
+                            if(idx2 == 0)
+                                codigo[i++]= 0xf8;
+                            else if(idx2 == 1)
+                                codigo[i++]= 0xf0;
+                            else
+                                codigo[i++]= 0xd0;
+                        } else { // var2 == $
+                            *((int*) &codigo[i]) = idx2;
+                            i+=sizeof(idx2);
+                            memcpy(&codigo[i], add_param, sizeof(add_param));
+                            i+=sizeof(add_param);
+                            if(idx1 == 0)
+                                codigo[i++]= 0xf8;
+                            else if(idx1 == 1)
+                                codigo[i++]= 0xf0;
+                            else
+                                codigo[i++]= 0xd0;
+                        }                        
+                    } else { // v0 = p0 + x
+                        memcpy(&codigo[i], add_param, sizeof(add_param));  
+                        i += sizeof(add_param);
+                    }
+                    
+                } else if( op == '-' ) {
+                    if( c0 == 'v' || var2 == 'v' ) { // v0 = v0 + p0 
+                        memcpy(&codigo[i], sub_Vx, sizeof(sub_Vx));
+                        i += sizeof(sub_Vx);
+                    } else if( c0 == '$' || var2 == '$' ) { // v0 = $10 + p0 
+                        memcpy(&codigo[i], sub_cnst, sizeof(sub_cnst));
+                        i += sizeof(sub_cnst);
+                    } else { // v0 = p0 + x
+                        memcpy(&codigo[i], sub_param, sizeof(sub_param));  
+                        i += sizeof(sub_param);
+                    }
+                    
+                } else if( op == '*' ) {
+                    if( c0 == 'v' || var2 == 'v' ) { // v0 = v0 + x
+                        memcpy(&codigo[i], imul_Vx, sizeof(imul_Vx));
+                        i += sizeof(imul_Vx);
+                    } else if( c0 == '$' || var2 == '$' ) { // v0 = $10 + x 
+                        memcpy(&codigo[i], imul_cnst, sizeof(imul_cnst));
+                        i += sizeof(imul_cnst);
+                    } else { // v0 = p0 + x
+                        memcpy(&codigo[i], imul_param, sizeof(imul_param));  
+                        i += sizeof(imul_param);
+                    }
+                } else {
+                    /*operação inexistente*/
+                }
+                memcpy(&codigo[i],mov_ret_to_Vx,sizeof(mov_ret_to_Vx));
+                i += sizeof(mov_ret_to_Vx);
+         	 	codigo[i++]= 0xf8 -8*idx0;
+                printf("%c%d = %c%d %c %c%d\n",
+                        var0, idx0, var1, idx1, op, var2, idx2);
+            }
+            break;
+        }
+        default: error("comando desconhecido", line);
+        }
+        line ++;
+        fscanf(f, " ");
+        
+    }
+    int aux = 0;
+    while( aux < i) {
+        printf("%d - %p\n",aux,codigo[aux]);
+        aux++;
+    }
+    funcp fu = (funcp)codigo;
+    entry = (funcp)codigo;
+    code = &codigo;
+    int res = (*fu)(100);
+    printf("resultado = %d \n",res);
 }
 void libera_codigo (void *p){
     free(p);
@@ -227,12 +284,12 @@ int main (void){
     }
     gera_codigo (fp, &code, &funcSBF);
     res = (*funcSBF)();
-    printf("resultado = %d \n",res);
+    printf("resultado_main = %d \n",res);
     if ((code == NULL) || (funcSBF == NULL)) {
        printf("Erro na geracao\n");
     }
     //libera_codigo(code);
     //libera_codigo(funcSBF);
-    //fclose(fp);
+    fclose(fp);
     return 0;
 }
