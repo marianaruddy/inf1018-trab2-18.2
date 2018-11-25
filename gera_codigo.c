@@ -64,6 +64,7 @@ void gera_codigo (FILE *f, void **code, funcp *entry){
     static unsigned char je[] = {0x74};// verificar se condicional eh verdadeira
     /* jne */
     static unsigned char jne[] = {0x75};// verificar se condicional eh falsa
+    /* espaco em codigo reservado caso exista a necessidade de pilha */
     static unsigned char pilha[] = {0x90,0x90,0x90,0x90};
     
     int num_Vx = 0;
@@ -74,6 +75,8 @@ void gera_codigo (FILE *f, void **code, funcp *entry){
     i+=sizeof(pilha);
 
     while ((c = fgetc(f)) != EOF) {
+        if(i == 90 ) 
+            printf("código muito grande para ser compilado\n");
         switch (c) {
         case 'f': { /* function */
             char c0;
@@ -107,6 +110,15 @@ void gera_codigo (FILE *f, void **code, funcp *entry){
                 memcpy(&codigo[i], mov_Vx, sizeof(mov_Vx));
                 i += sizeof(mov_Vx);
          	 	codigo[i++]= 0xf8 -8*idx0;
+            } else if(var0 == 'p') {
+                memcpy(&codigo[i], mov_Vx, sizeof(mov_Vx));
+                i+=sizeof(mov_Px);
+                if(idx0 == 0)
+                    codigo[i++]= 0xf8;
+                else if(idx0 == 1)
+                    codigo[i++]= 0xf0;
+                else
+                    codigo[i++]= 0xd0;
             }
             memcpy(&codigo[i],ret,sizeof(ret));
             i += sizeof(ret);
@@ -119,6 +131,32 @@ void gera_codigo (FILE *f, void **code, funcp *entry){
             if (fscanf(f, "ret %c%d %c%d", &var0, &idx0, &var1, &idx1) != 4) {
                 error("comando invalido", line);
             }
+            if(var0 == 'p') {
+                memcpy(&codigo[i], mov_Px,sizeof(mov_Px));
+                i+=sizeof(mov_Px);
+                if(idx0 == 0)
+                    codigo[i++]= 0xf8;
+                else if(idx0 == 1)
+                    codigo[i++]= 0xf0;
+                else
+                    codigo[i++]= 0xd0;
+            } else if( var0 == 'v') {
+                memcpy(&codigo[i], mov_Vx,sizeof(mov_Vx));
+                i+=sizeof(mov_Vx);
+                codigo[i++]= 0xf8 -8*idx0;
+            } else {
+                if(idx0 == 0 ) {
+                    memcpy(&codigo[90], ret, sizeof(ret));
+                }
+            }
+            memcpy(&codigo[i], cmp_cnst, sizeof(cmp_cnst));
+            i+=sizeof(cmp_cnst);
+            *((int*) &codigo[i]) = 0;
+            i+=sizeof(0);
+            memcpy(&codigo[i], je, sizeof(je));
+            i+=sizeof(je);
+            codigo[i++] = 0x5a; // Colocando em 0x5a sequencia que indicará que condicional foi aceita
+            memcpy(&codigo[90], ret, sizeof(ret));
             printf("zret %c%d %c%d\n", var0, idx0, var1, idx1);
             break;
         }
@@ -367,11 +405,11 @@ void gera_codigo (FILE *f, void **code, funcp *entry){
                                 memcpy(&codigo[i], imul_param, sizeof(imul_param));
                                 i+=sizeof(imul_param);
                                 if(idx2 == 0)
-                                    codigo[i++]= 0xf8;
+                                    codigo[i++]= 0xc7;
                                 else if(idx2 == 1)
-                                    codigo[i++]= 0xf0;
+                                    codigo[i++]= 0xc6;
                                 else
-                                    codigo[i++]= 0xd0;
+                                    codigo[i++]= 0xc2;
                             } else if(var2 == 'v') {
                                 memcpy(&codigo[i], imul_Vx, sizeof(imul_Vx));
                                 i+=sizeof(imul_Vx);
@@ -388,11 +426,11 @@ void gera_codigo (FILE *f, void **code, funcp *entry){
                                 memcpy(&codigo[i], imul_param, sizeof(imul_param));
                                 i+=sizeof(imul_param);
                                 if(idx1 == 0)
-                                    codigo[i++]= 0xf8;
+                                    codigo[i++]= 0xc7;
                                 else if(idx1 == 1)
-                                    codigo[i++]= 0xf0;
+                                    codigo[i++]= 0xc6;
                                 else
-                                    codigo[i++]= 0xd0;
+                                    codigo[i++]= 0xc2;
                             } else if(c0 == 'v') {
                                 memcpy(&codigo[i], imul_Vx, sizeof(imul_Vx));
                                 i+=sizeof(imul_Vx);
@@ -414,11 +452,11 @@ void gera_codigo (FILE *f, void **code, funcp *entry){
                                 memcpy(&codigo[i], imul_param, sizeof(imul_param));
                                 i+=sizeof(imul_param);
                                 if(idx2 == 0)
-                                    codigo[i++]= 0xf8;
+                                    codigo[i++]= 0xc7;
                                 else if(idx2 == 1)
-                                    codigo[i++]= 0xf0;
+                                    codigo[i++]= 0xc6;
                                 else
-                                    codigo[i++]= 0xd0;
+                                    codigo[i++]= 0xc2;
                             } else { //var2 == v
                                 memcpy(&codigo[i], imul_Vx, sizeof(imul_Vx));
                                 i+=sizeof(imul_Vx);
@@ -431,11 +469,11 @@ void gera_codigo (FILE *f, void **code, funcp *entry){
                                 memcpy(&codigo[i], imul_param, sizeof(imul_param));
                                 i+=sizeof(imul_param);
                                 if(idx1 == 0)
-                                    codigo[i++]= 0xf8;
+                                    codigo[i++]= 0xc7;
                                 else if(idx1 == 1)
-                                    codigo[i++]= 0xf0;
+                                    codigo[i++]= 0xc6;
                                 else
-                                    codigo[i++]= 0xd0;
+                                    codigo[i++]= 0xc2;
                             } else { //c0 == v
                                 memcpy(&codigo[i], imul_Vx, sizeof(imul_Vx));
                                 i+=sizeof(imul_Vx);
@@ -446,19 +484,11 @@ void gera_codigo (FILE *f, void **code, funcp *entry){
                         memcpy(&codigo[i], mov_Px, sizeof(mov_Px));
                         i+=sizeof(mov_Px);
                         if(idx1 == 0)
-                            codigo[i++]= 0xf8;
+                            codigo[i++]= 0xc7;
                         else if(idx1 == 1)
-                            codigo[i++]= 0xf0;
+                            codigo[i++]= 0xc6;
                         else
-                            codigo[i++]= 0xd0;
-                        memcpy(&codigo[i], imul_param, sizeof(imul_param));
-                        i+=sizeof(imul_param);
-                        if(idx2 == 0)
-                            codigo[i++]= 0xf8;
-                        else if(idx1 == 1)
-                            codigo[i++]= 0xf0;
-                        else
-                            codigo[i++]= 0xd0;
+                            codigo[i++]= 0xc2;
                     }
                 } else {
                     /*operação inexistente*/
@@ -475,13 +505,13 @@ void gera_codigo (FILE *f, void **code, funcp *entry){
         }
         line ++;
         fscanf(f, " ");
-    }
+        }
     int aux = 0;
     while( aux < i) {
         printf("%d - %p\n",aux,codigo[aux]);
         aux++;
     }
-    if(num_Vx != 0){ // Preencheremos esse espaço de memória para fornecer memória em caso de variaveis 
+    if(num_Vx != 0) { // Preencheremos esse espaço de memória para fornecer memória em caso de variaveis 
 		codigo[4]= 0x48;
 		codigo[5]= 0x83;
 		codigo[6]= 0xec;
@@ -490,7 +520,6 @@ void gera_codigo (FILE *f, void **code, funcp *entry){
 	printf("Numero de variaveis locais: %d\n",num_Vx); 
     funcp fu = (funcp)codigo;
     *entry = (funcp*)codigo;
-    aux=0;
     code = &codigo;
     int res = (*fu)(100);
     printf("resultado = %d \n",res);
@@ -498,7 +527,7 @@ void gera_codigo (FILE *f, void **code, funcp *entry){
 void libera_codigo (void *p){
     free(p);
 }
-int main (void){
+int main (void) {
     FILE *fp;
     void *code = (unsigned char *) malloc(sizeof(char)*NUM_MAX_LINHAS);;
     funcp funcSBF;
