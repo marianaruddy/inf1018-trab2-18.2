@@ -1,0 +1,271 @@
+﻿Mariana Medeiros Ruddy Santos    1611397    3WA
+Felipe Alexandre Metson         1520302    3WA
+
+Códigos de Máquina:
+Para 
+v1 = -4(%rbp)
+v2 = -8(%rbp)
+v3 = -12(%rbp)
+v4 = -16(%rbp)
+
+
+pushq %rbp  == 55
+movq %rsp, %rbp == 48 89 e5
+subq $8, %rsp == 48 83 ec 08
+subq $16, %rsp == 48 83 ec 10
+leave ==  c9
+movl  -4(%rbp), %edx ==  8b 55 fc
+movl  -8(%rbp), %edx ==   8b 55 f8
+movl  -12(%rbp), %edx ==   8b 55 f4
+movl  -16(%rbp), %edx ==   8b 55 f0
+movl   %edx,-4(%rbp) ==   89 55 fc
+movl  %edx, -8(%rbp) ==   89 55 f8
+movl  %edx, -12(%rbp) == 89 55 f4
+movl  %edx, -16(%rbp) == 89 55 f0
+movl  -4(%rbp), %edi == 8b 7d fc
+movl  -8(%rbp), %edi ==  8b 7d f8
+movl  -12(%rbp), %edi ==  8b 7d f4
+movl  -16(%rbp), %edi == 8b 7d f0
+movl  %edi, -4(%rbp) ==  89 7d fc
+movl  %edi, -8(%rbp)  == 89 7d f8
+movl  %edi, -12(%rbp) == 89 7d f4
+movl  %edi, -16(%rbp) ==89 7d f0
+movl  $n, %edi ==  bf nn nn nn nn (nn = 0xn)
+movl  -4(%rbp), %esi ==  8b 75 fc
+movl  -8(%rbp), %esi == 8b 75 f8
+movl  -12(%rbp), %esi == 8b 75 f4
+movl  -16(%rbp), %esi == 8b 75 f0
+movl  %esi, -4(%rbp) == 89 75 fc
+movl  %esi, -8(%rbp)  == 89 75 f8
+movl  %esi, -12(%rbp) == 89 75 f4
+movl  %esi, -16(%rbp) == 89 75 f0
+movl  $n, %esi == be nn nn nn nn
+movl $n, -4(%rbp) == c7 45 fc nn nn nn nn
+movl $n, -8(%rbp) == c7 45 f8 nn nn nn nn
+movl $n, -12(%rbp) == c7 45 f4 nn nn nn nn
+movl $n, -16(%rbp) == c7 45 f0 nn nn nn nn
+addl  -4(%rbp), %edx == 8b 55 fc
+addl  -8(%rbp), %edx == 8b 55 f8
+addl  -12(%rbp), %edx == 8b 55 f4
+addl  -16(%rbp), %edx == 8b 55 f0
+addl   %edx,-4(%rbp) == 03 55 fc
+addl  %edx, -8(%rbp) == 03 55 f8
+addl  %edx, -12(%rbp) == 03 55 f4
+addl  %edx, -16(%rbp) == 03 55 f0
+addl  -4(%rbp), %edi == 03 7d fc
+addl  -8(%rbp), %edi == 03 7d f8
+addl  -12(%rbp), %edi == 03 7d f4
+addl  -16(%rbp), %edi == 03 7d f0
+addl  %edi, -4(%rbp) ==  89 7d fc
+addl  %edi, -8(%rbp)  == 89 7d f8
+addl  %edi, -12(%rbp) == 89 7d f4
+addl  %edi, -16(%rbp) == 89 7d f0
+addl  $1, %edi == 83 c7 nn
+addl  $127, %edi ==  83 c7 nn
+addl  $128, %edi == 81 c7 nn nn nn nn
+addl  $4294967167, %edi ==  81 c7 nn nn nn nn
+addl  $4294967168, %edi ==  83 c7 nn
+addl  -4(%rbp), %esi ==    03 75 fc
+addl  -8(%rbp), %esi ==   03 75 f8
+addl  -12(%rbp), %esi ==  03 75 f4 
+addl  -16(%rbp), %esi ==  03 75 f0
+addl  %esi, -4(%rbp) == 01 75 fc
+addl  %esi, -8(%rbp)  ==  01 75 f8
+addl  %esi, -12(%rbp) ==  01 75 f4
+addl  %esi, -16(%rbp) == 01 75 f0
+addl  $1, %esi == 83 c6 nn
+addl  $127, %esi == 83 c6 nn
+addl  $128, %esi ==   81 c6 nn nn nn nn
+addl  $4294967167, %esi ==  81 c6 nn nn nn nn
+addl  $4294967168, %esi ==  83 c6 nn
+addl $1, -4(%rbp) == 83 45 fc nn
+addl $127, -4(%rbp) == 83 45 fc nn
+addl $128, -4(%rbp) == 81 45 fc nn nn nn nn 
+addl $4294967167, -4(%rbp) == 81 45 fc nn nn nn nn
+addl $4294967168, -4(%rbp) == 83 45 fc nn
+addl $1, -8(%rbp) == 83 45 f8 nn
+addl $127, -8(%rbp) == 83 45 f8 nn
+addl $128, -8(%rbp) == 81 45 f8 nn nn nn nn
+addl $4294967167, -8(%rbp) == 81 45 f8 nn nn nn nn 
+addl $4294967168, -8(%rbp) == 83 45 f8 nn
+addl $1, -12(%rbp) == 83 45 f4 nn
+addl $127, -12(%rbp) == 83 45 f4 nn
+addl $128, -12(%rbp) == 81 45 f4 nn nn nn nn
+addl $4294967167, -12(%rbp) == 81 45 f4 nn nn nn nn
+addl $4294967168, -12(%rbp) == 83 45 f4 nn
+addl $1, -16(%rbp) == 83 45 f0 nn
+addl $127, -16(%rbp) == 83 45 f0 nn
+addl $128, -16(%rbp) == 81 45 f0 nn nn nn nn
+addl $4294967167, -16(%rbp) == 81 45 f0 nn nn nn nn
+addl $4294967168, -16(%rbp) == 83 45 f0 nn
+subl  -4(%rbp), %edx ==  2b 55 fc
+subl  -8(%rbp), %edx ==  2b 55 f8
+subl  -12(%rbp), %edx ==  2b 55 f4
+subl  -16(%rbp), %edx ==  2b 55 f0
+subl   %edx,-4(%rbp) ==  29 55 fc
+subl  %edx, -8(%rbp) ==  29 55 f8
+subl  %edx, -12(%rbp) ==  29 55 f4
+subl  %edx, -16(%rbp) ==  29 55 f0
+subl  -4(%rbp), %edi == 0f af 7d fc
+subl  -8(%rbp), %edi ==  0f af 7d f8
+subl  -12(%rbp), %edi ==  0f af 7d f4
+subl  -16(%rbp), %edi == 0f af 7d f0
+subl  %edi, -4(%rbp) ==  29 7d fc
+subl  %edi, -8(%rbp)  ==  29 7d f8
+subl  %edi, -12(%rbp) ==  29 7d f4
+subl  %edi, -16(%rbp) == 29 7d f0
+subl  $1, %edi == 83 ef nn
+subl  $127, %edi == 83 ef nn
+subl  $128, %edi == 81 ef nn nn nn nn
+subl  $4294967167, %edi == 81 ef nn nn nn nn
+subl  $4294967168, %edi == 83 ef nn
+subl  -4(%rbp), %esi ==  2b 75 fc
+subl  -8(%rbp), %esi ==   2b 75 f8
+subl  -12(%rbp), %esi ==   2b 75 f4
+subl  -16(%rbp), %esi ==  2b 75 f0
+subl  %esi, -4(%rbp) == 29 75 fc
+subl  %esi, -8(%rbp)  ==  29 75 f8
+subl  %esi, -12(%rbp) ==  29 75 f4
+subl  %esi, -16(%rbp) == 29 75 f0
+subl  $1, %esi == 83 ee nn
+subl  $127, %esi == 83 ee nn
+subl  $128, %esi == 81 ee nn nn nn nn
+subl  $4294967167, %esi == 81 ee nn nn nn nn
+subl  $4294967168, %esi ==  83 ee nn
+subl $1, -4(%rbp) == 83 6d fc nn
+subl $127, -4(%rbp) == 83 6d fc nn
+subl $128, -4(%rbp) == 81 6d fc nn nn nn nn
+subl $4294967167, -4(%rbp) == 81 6d fc nn nn nn nn
+subl $4294967168, -4(%rbp) == 83 6d fc nn
+subl $1, -8(%rbp) == 83 6d f8 nn
+subl $127, -8(%rbp) == 83 6d f8 nn
+subl $128, -8(%rbp) == 81 6d f8 nn nn nn nn
+subl $4294967167, -8(%rbp) == 81 6d f8 nn nn nn nn
+subl $4294967168, -8(%rbp) == 83 6d f8 nn
+subl $1, -12(%rbp) == 83 6d f4 nn
+subl $127, -12(%rbp) == 83 6d f4 nn
+subl $128, -12(%rbp) == 81 6d f4 nn nn nn nn
+subl $4294967167, -12(%rbp) == 81 6d f4 nn nn nn nn
+subl $4294967168, -12(%rbp) == 83 6d f4 nn
+subl $1, -16(%rbp) == 83 6d f0 nn
+subl $127, -16(%rbp) == 83 6d f0 nn
+subl $128, -16(%rbp) == 81 6d f0 nn nn nn nn
+subl $4294967167, -16(%rbp)== 81 6d f0 nn nn nn nn
+subl $4294967168, -16(%rbp) == 83 6d f0 nn
+imul  -4(%rbp), %edx == 0f af 55 fc
+imul  -8(%rbp), %edx == 0f af 55 f8 
+imul  -12(%rbp), %edx == 0f af 55 f4 
+imul  -16(%rbp), %edx == 0f af 55 f0 
+imul  -4(%rbp), %edi ==  0f af 7d fc
+imul  -8(%rbp), %edi == 0f af 7d f8 
+imul  -12(%rbp), %edi == 0f af 7d f4 
+imul  -16(%rbp), %edi == 0f af 7d f0 
+imul  $1, %edi == 83 c7 nn
+imul  $127, %edi == 83 c7 nn
+imul  $128, %edi == 81 c7 nn nn nn nn
+imul  $4294967167, %edi == 81 c7 nn nn nn nn
+imul  $4294967168, %edi == 83 c7 nn
+imul  -4(%rbp), %esi == 0f af 75 fc 
+imul  -8(%rbp), %esi ==  0f af 75 f8
+imul  -12(%rbp), %esi ==  0f af 75 f4
+imul  -16(%rbp), %esi == 0f af 75 f0
+imul  $1, %esi == 83 c6 nn
+imul  $127, %esi == 83 c6 nn
+imul  $128, %esi == 81 c6 nn nn nn nn
+imul  $4294967167, %esi == 81 c6 nn nn nn nn
+imul  $4294967168, %esi == 83 c6 nn
+imul $1, -4(%rbp) == 83 45 fc nn
+imul $127, -4(%rbp) == 83 45 fc nn
+imul $128, -4(%rbp) == 81 45 fc nn nn nn nn
+imul $4294967167, -4(%rbp) == 81 45 fc nn nn nn nn
+imul $4294967168, -4(%rbp) == 83 45 fc nn
+imul $1, -8(%rbp) == 83 45 f8 nn
+imul $127, -8(%rbp) == 83 45 f8 nn
+imul $128, -8(%rbp) == 81 45 f8 nn nn nn nn
+imul $4294967167, -8(%rbp) == 81 45 f8 nn nn nn nn
+imul $4294967168, -8(%rbp) == 83 45 f8 nn
+imul $1, -12(%rbp) == 83 45 f4 nn
+imul $127, -12(%rbp) == 83 45 f4 nn
+imul $128, -12(%rbp) == 81 45 f4 nn nn nn nn
+imul $4294967167, -12(%rbp) == 81 45 f4 nn nn nn nn
+imul $4294967168, -12(%rbp) == 83 45 f4 nn
+imul $1, -16(%rbp) == 83 45 f0 nn
+imul $127, -16(%rbp) == 83 45 f0 nn
+imul $128, -16(%rbp) == 81 45 f0 nn nn nn nn
+imul $4294967167, -16(%rbp) == 81 45 f0 nn nn nn nn
+imul $4294967168, -16(%rbp) == 83 45 f0 nn
+
+
+Para operações entre duas variáves locais (ex.: v1 e v3) não é necessário usar os registradores do tipo %r12d, etc, podemos utilizar o %edx para fazer operações entre as memórias alocadas na pilha (-4(%rbp) e -12(%rbp)).
+A alocação do código de máquina se dá por:
+
+
+unsigned char* cod = (unsigned char*)malloc(sizeof(char)*1024);                    
+    cod[pos++] = 0x83;
+    cod[pos++] = 0x45;
+    cod[pos++] = 0xf0;
+    cod[pos++] = 0xnn;
+
+    funcao main usada para nossos testes:
+    int main (void) {
+    FILE *fp;
+    void *code = (unsigned char *) malloc(sizeof(char)*NUM_MAX_LINHAS);;
+    funcp funcSBF;
+    int res;
+    if ((fp = fopen ("teste.txt", "r")) == NULL) {
+        perror ("nao conseguiu abrir arquivo!");
+        exit(1);
+    }
+    gera_codigo (fp, &code, &funcSBF);
+    res = (*funcSBF)(100);
+    printf("resultado_main = %d \n",res);
+    if ((code == NULL) || (funcSBF == NULL)) {
+       printf("Erro na geracao\n");
+    }
+    libera_codigo(code);
+    libera_codigo(funcSBF);
+    fclose(fp);
+    return 0;
+}
+
+
+Alguns exemplos de testes funcionando:
+    - 
+    function
+    ret $21
+    end
+    - 
+    function
+    v0 = p0 + $10
+    ret v0
+    end
+    -
+    function
+    v0 = v0 * v1
+    ret v0
+    end
+    -
+    function
+    v0 = v0 - v1
+    ret v0
+    end
+
+Alguns exemplos de testes nao funcionando:
+    - 
+    function
+    v0 = p0 * p0
+    ret v0
+    end
+    function
+    zret p0 $0
+    v0 = p0 - $1
+    v1 = call 0 p0
+    v0 = call 1 v0
+    v0 = v0 + v1
+    ret v0
+    end
+    -
+    function
+    zret p0 $150
+    end
+
